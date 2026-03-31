@@ -347,7 +347,12 @@
   .tag-fire { background: var(--fire-red); color: var(--text-light); }
   .tag-super { background: var(--green-dark); color: var(--text-light); }
 
-  /* ==================== MOBILE ==================== */
+  /* Mobile: two-column panel pairs */
+  .panel-pair {
+    display: contents;
+  }
+
+  /* ==================== TABLET ==================== */
   @media (max-width: 900px) {
     body { padding: 8px; }
 
@@ -358,31 +363,32 @@
       grid-template-columns: 1fr;
     }
 
-    /* Side-by-side input panels on mobile */
     .left-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: flex;
+      flex-direction: column;
       gap: 0;
     }
-    .fire-badge {
-      grid-column: 1 / -1;
-      padding: 10px;
-    }
+
+    .fire-badge { padding: 10px; }
     .fire-circle { width: 120px; height: 120px; }
     .fire-circle .value { font-size: 26px; }
 
-    .left-col .panel { border-top: 2px solid var(--border); }
-    .left-col .panel:nth-child(2) { border-right: none; }
-    .left-col .panel:nth-child(4) { border-right: none; border-left: none; }
-    .left-col .panel:nth-child(3) { border-top: none; }
-    .left-col .panel:nth-child(4) { border-top: none; }
-
-    .toggle-row {
-      grid-column: 1 / -1;
-      border-top: 2px solid var(--border);
+    /* Side-by-side panel pairs */
+    .panel-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 2px solid var(--border);
+      border-top: none;
     }
-
-    .right-col { grid-column: 1 / -1; }
+    .panel-pair .panel {
+      border: none;
+    }
+    .panel-pair .panel:first-child {
+      border-right: 1px solid var(--border);
+    }
+    .panel-pair .panel:last-child {
+      border-left: 1px solid var(--border);
+    }
 
     .results-row { grid-template-columns: 1fr 1fr; }
     .result-item {
@@ -400,14 +406,23 @@
     tbody td { font-size: 9px; padding: 3px; }
   }
 
+  /* ==================== PHONE ==================== */
   @media (max-width: 480px) {
-    .left-col {
-      grid-template-columns: 1fr;
+    .panel-pair {
+      display: flex;
+      flex-direction: column;
+      border: none;
+      border-top: none;
     }
-    .left-col .panel {
-      border-top: none !important;
-      border-left: 2px solid var(--border) !important;
-      border-right: 2px solid var(--border) !important;
+    .panel-pair .panel {
+      border: 2px solid var(--border);
+      border-top: none;
+    }
+    .panel-pair .panel:first-child {
+      border-right: 2px solid var(--border);
+    }
+    .panel-pair .panel:last-child {
+      border-left: 2px solid var(--border);
     }
     .input-grid { grid-template-columns: 1fr; }
     .results-row { grid-template-columns: 1fr; }
@@ -439,28 +454,56 @@
       </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-header">Income Target &amp; Assumptions</div>
-      <div class="input-grid">
-        <div class="input-cell">
-          <label>Target Annual Income</label>
-          <input type="number" id="targetIncome" value="80000" step="5000">
-          <span class="unit">$ / year</span>
+    <div class="panel-pair">
+      <div class="panel">
+        <div class="panel-header">Income Target &amp; Assumptions</div>
+        <div class="input-grid">
+          <div class="input-cell">
+            <label>Target Annual Income</label>
+            <input type="number" id="targetIncome" value="80000" step="5000">
+            <span class="unit">$ / year</span>
+          </div>
+          <div class="input-cell">
+            <label>Withdrawal Rate</label>
+            <input type="number" id="withdrawalRate" value="4" step="0.25" min="0.5" max="15">
+            <span class="unit">%</span>
+          </div>
+          <div class="input-cell">
+            <label>Growth Rate</label>
+            <input type="number" id="growthRate" value="7" step="0.5" min="0" max="30">
+            <span class="unit">% / year</span>
+          </div>
+          <div class="input-cell">
+            <label>Inflation Rate</label>
+            <input type="number" id="inflationRate" value="3" step="0.5" min="0" max="15">
+            <span class="unit">% / year</span>
+          </div>
         </div>
-        <div class="input-cell">
-          <label>Withdrawal Rate</label>
-          <input type="number" id="withdrawalRate" value="4" step="0.25" min="0.5" max="15">
-          <span class="unit">%</span>
-        </div>
-        <div class="input-cell">
-          <label>Growth Rate</label>
-          <input type="number" id="growthRate" value="7" step="0.5" min="0" max="30">
-          <span class="unit">% / year</span>
-        </div>
-        <div class="input-cell">
-          <label>Inflation Rate</label>
-          <input type="number" id="inflationRate" value="3" step="0.5" min="0" max="15">
-          <span class="unit">% / year</span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Portfolios &amp; Contributions</div>
+        <div class="input-grid">
+          <div class="input-cell">
+            <label>Super Balance</label>
+            <input type="number" id="superBal" value="85000" step="5000" min="0">
+            <span class="unit">$</span>
+          </div>
+          <div class="input-cell">
+            <label>Super Top-Up / Year</label>
+            <input type="number" id="superContrib" value="12000" step="1000" min="0">
+            <span class="unit">$ / year</span>
+          </div>
+          <div class="input-cell">
+            <label>Non-Super Balance</label>
+            <input type="number" id="nonSuperBal" value="45000" step="5000" min="0">
+            <span class="unit">$</span>
+          </div>
+          <div class="input-cell">
+            <label>Non-Super / Year</label>
+            <input type="number" id="nonSuperContrib" value="24000" step="1000" min="0">
+            <span class="unit">$ / year</span>
+          </div>
         </div>
       </div>
     </div>
@@ -482,32 +525,6 @@
         </div>
         <div class="input-cell" style="display:flex;align-items:center;justify-content:center;">
           <span style="font-size:7px;letter-spacing:1px;text-transform:uppercase;font-weight:700;opacity:0.35;">Preservation Age Rule</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">Portfolios &amp; Contributions</div>
-      <div class="input-grid">
-        <div class="input-cell">
-          <label>Super Balance</label>
-          <input type="number" id="superBal" value="85000" step="5000" min="0">
-          <span class="unit">$</span>
-        </div>
-        <div class="input-cell">
-          <label>Super Top-Up / Year</label>
-          <input type="number" id="superContrib" value="12000" step="1000" min="0">
-          <span class="unit">$ / year</span>
-        </div>
-        <div class="input-cell">
-          <label>Non-Super Balance</label>
-          <input type="number" id="nonSuperBal" value="45000" step="5000" min="0">
-          <span class="unit">$</span>
-        </div>
-        <div class="input-cell">
-          <label>Non-Super / Year</label>
-          <input type="number" id="nonSuperContrib" value="24000" step="1000" min="0">
-          <span class="unit">$ / year</span>
         </div>
       </div>
     </div>
