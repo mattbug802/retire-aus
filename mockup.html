@@ -757,15 +757,17 @@ function runProjection() {
     `Non-super portfolio funds retirement from ${fireYr} to ${p.superAccessYr} (${gap} years of drawdown). ` +
     `Super portfolio grows untouched until access year ${p.superAccessYr}, at which point it sustains retirement at ${p.withdrawal}% withdrawal rate.`;
 
-  balanceChart.data.labels = years;
-  balanceChart.data.datasets[0].data = sBals;
-  balanceChart.data.datasets[1].data = nsBals;
+  // Charts only show data up to super access year
+  const chartEnd = p.superAccessYr - p.startYr + 1;
+  balanceChart.data.labels = years.slice(0, chartEnd);
+  balanceChart.data.datasets[0].data = sBals.slice(0, chartEnd);
+  balanceChart.data.datasets[1].data = nsBals.slice(0, chartEnd);
   balanceChart.update();
 
-  incomeChart.data.labels = years;
-  incomeChart.data.datasets[0].data = sRets;
-  incomeChart.data.datasets[1].data = nsRets;
-  incomeChart.data.datasets[2].data = incD;
+  incomeChart.data.labels = years.slice(0, chartEnd);
+  incomeChart.data.datasets[0].data = sRets.slice(0, chartEnd);
+  incomeChart.data.datasets[1].data = nsRets.slice(0, chartEnd);
+  incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
 }
 
