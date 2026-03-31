@@ -13,7 +13,6 @@
     --bg-light: #D4B94E;
     --dark: #3A3520;
     --dark-bg: #4A4530;
-    --accent: #6B6235;
     --text: #3A3520;
     --text-light: #C8A841;
     --border: #3A3520;
@@ -28,32 +27,41 @@
     color: var(--text);
     font-family: 'IBM Plex Mono', 'Space Mono', monospace;
     min-height: 100vh;
-    padding: 16px;
+    padding: 12px;
   }
 
   /* HEADER */
   .header {
-    display: grid;
-    grid-template-columns: 1fr 180px;
+    display: flex;
     border: 2px solid var(--border);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .header > div {
-    padding: 10px 20px;
-    border-right: 2px solid var(--border);
-    font-size: 13px;
+    padding: 8px 16px;
+    font-size: 12px;
     letter-spacing: 2px;
     text-transform: uppercase;
     font-weight: 700;
   }
-  .header > div:last-child { border-right: none; }
+  .header > div:first-child {
+    flex: 1;
+    border-right: 2px solid var(--border);
+  }
 
-  /* TOP GRID */
-  .top-grid {
+  /* ===== TOP SECTION: inputs left, charts right ===== */
+  .top-layout {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
+    grid-template-columns: 420px 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  /* LEFT COLUMN: fire badge + inputs */
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    min-width: 0;
   }
 
   .fire-badge {
@@ -61,11 +69,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
+    padding: 14px;
   }
   .fire-circle {
-    width: 180px;
-    height: 180px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     background: var(--dark);
     display: flex;
@@ -75,158 +83,147 @@
   }
   .fire-circle .label {
     color: var(--text-light);
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     font-weight: 700;
   }
   .fire-circle .value {
     color: var(--text-light);
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     letter-spacing: 2px;
   }
   .fire-circle .sub-label {
     color: var(--text-light);
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-top: 4px;
+    margin-top: 3px;
     text-align: center;
-    line-height: 1.5;
+    line-height: 1.4;
   }
 
-  /* PANELS */
   .panel {
     border: 2px solid var(--border);
     background: var(--bg);
   }
+  .left-col .panel { border-top: none; }
   .panel-header {
-    padding: 8px 16px;
-    font-size: 11px;
+    padding: 6px 12px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
     text-transform: uppercase;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .inputs-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .inputs-col .panel + .panel { border-top: none; }
-
-  .input-row {
+  /* Input grid inside panels */
+  .input-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
   }
-  .input-row.quad { grid-template-columns: 1fr 1fr 1fr 1fr; }
-
-  .input-group {
-    padding: 10px 14px;
-    border: 1px solid var(--border);
+  .input-cell {
+    padding: 6px 10px;
+    border: 1px solid rgba(58,53,32,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  .input-group label {
-    display: block;
-    font-size: 9px;
+  .input-cell label {
+    font-size: 7.5px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     font-weight: 700;
-    margin-bottom: 4px;
-    opacity: 0.8;
+    opacity: 0.7;
   }
-  .input-group .val {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .input-group input[type="range"] {
+  .input-cell input[type="number"] {
     width: 100%;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 3px;
-    background: var(--border);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--border);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    padding: 2px 0;
     outline: none;
-    cursor: pointer;
+    -moz-appearance: textfield;
   }
-  .input-group input[type="range"]::-webkit-slider-thumb {
+  .input-cell input[type="number"]::-webkit-outer-spin-button,
+  .input-cell input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
-    appearance: none;
-    width: 14px;
-    height: 14px;
-    background: var(--bg);
-    border: 2px solid var(--border);
-    cursor: pointer;
+    margin: 0;
+  }
+  .input-cell input[type="number"]:focus {
+    border-bottom-color: var(--fire-red);
+  }
+  .input-cell .unit {
+    font-size: 7px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    font-weight: 700;
   }
 
-  /* CHECKBOX TOGGLE */
+  /* Checkbox toggles */
   .toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 0;
     border: 2px solid var(--border);
     border-top: none;
   }
   .toggle-item {
-    flex: 1;
-    padding: 10px 14px;
+    padding: 7px 10px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    border-right: 1px solid var(--border);
+    gap: 8px;
     cursor: pointer;
+    border-bottom: 1px solid rgba(58,53,32,0.3);
   }
-  .toggle-item:last-child { border-right: none; }
-
+  .toggle-item:last-child { border-bottom: none; }
   .toggle-item input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     border: 2px solid var(--border);
     background: var(--bg);
     cursor: pointer;
     flex-shrink: 0;
     position: relative;
   }
-  .toggle-item input[type="checkbox"]:checked {
-    background: var(--dark);
-  }
+  .toggle-item input[type="checkbox"]:checked { background: var(--dark); }
   .toggle-item input[type="checkbox"]:checked::after {
     content: '';
     position: absolute;
     left: 3px;
     top: 0px;
-    width: 6px;
-    height: 10px;
+    width: 5px;
+    height: 9px;
     border: solid var(--text-light);
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
   .toggle-item span {
-    font-size: 9px;
-    letter-spacing: 1.5px;
+    font-size: 8px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     font-weight: 700;
   }
 
-  /* RUN BUTTON */
   .run-btn {
     width: 100%;
-    padding: 14px;
+    padding: 10px;
     background: var(--green-dark);
     color: var(--text-light);
     border: 2px solid var(--border);
     border-top: none;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -234,7 +231,36 @@
   }
   .run-btn:hover { background: var(--dark); }
 
-  /* RESULTS */
+  /* RIGHT COLUMN: charts stacked */
+  .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .chart-panel {
+    border: 2px solid var(--border);
+    background: var(--bg);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .chart-panel .panel-header {
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--border);
+  }
+  .chart-wrap {
+    padding: 10px;
+    background: rgba(58,53,32,0.06);
+    flex: 1;
+    min-height: 180px;
+  }
+
+  /* RESULTS ROW */
   .results-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -242,83 +268,56 @@
     margin-bottom: 0;
   }
   .result-item {
-    padding: 14px 16px;
+    padding: 10px 14px;
     border-right: 2px solid var(--border);
   }
   .result-item:last-child { border-right: none; }
   .result-item .label {
-    font-size: 9px;
+    font-size: 8px;
     letter-spacing: 2px;
     text-transform: uppercase;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     opacity: 0.8;
   }
   .result-item .value {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
   .strategy-note {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border: 2px solid var(--border);
     border-top: none;
-    font-size: 10px;
+    font-size: 9px;
     letter-spacing: 1px;
     text-transform: uppercase;
-    line-height: 1.8;
-    margin-bottom: 12px;
+    line-height: 1.7;
+    margin-bottom: 10px;
   }
   .strategy-note strong {
     display: block;
     margin-bottom: 2px;
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 2px;
-  }
-
-  /* CHARTS */
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .chart-panel {
-    border: 2px solid var(--border);
-    background: var(--bg);
-  }
-  .chart-panel .panel-header {
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    border-bottom: 2px solid var(--border);
-  }
-  .chart-wrap {
-    padding: 12px;
-    background: rgba(58,53,32,0.06);
-    height: 260px;
   }
 
   /* TABLE */
   .table-section {
     border: 2px solid var(--border);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .table-section .panel-header { border-bottom: 2px solid var(--border); }
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 11px;
-    letter-spacing: 0.5px;
   }
   thead th {
-    padding: 8px 6px;
+    padding: 7px 5px;
     text-align: right;
-    font-size: 8px;
+    font-size: 7.5px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     font-weight: 700;
@@ -331,7 +330,7 @@
   thead th:first-child, thead th:nth-child(2) { text-align: left; }
   thead th:last-child { text-align: left; }
   tbody td {
-    padding: 5px 6px;
+    padding: 4px 5px;
     border-bottom: 1px solid rgba(58,53,32,0.2);
     font-size: 10px;
     font-weight: 500;
@@ -350,106 +349,51 @@
   .table-scroll { max-height: 600px; overflow-y: auto; }
   .tag {
     display: inline-block;
-    padding: 2px 6px;
+    padding: 2px 5px;
     font-size: 7px;
     letter-spacing: 1px;
     text-transform: uppercase;
     font-weight: 700;
     border-radius: 2px;
-    margin-left: 4px;
+    margin-left: 3px;
   }
   .tag-fire { background: var(--fire-red); color: var(--text-light); }
   .tag-super { background: var(--green-dark); color: var(--text-light); }
-  .arrows { font-size: 10px; letter-spacing: 2px; }
 
   /* ==================== MOBILE ==================== */
   @media (max-width: 900px) {
     body { padding: 8px; }
 
-    .header {
+    .header > div:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+    .header { flex-direction: column; }
+
+    .top-layout {
       grid-template-columns: 1fr;
     }
-    .header > div { border-right: none; border-bottom: 1px solid var(--border); }
-    .header > div:last-child { border-bottom: none; }
 
-    .top-grid {
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
+    .fire-badge { padding: 10px; }
+    .fire-circle { width: 120px; height: 120px; }
+    .fire-circle .value { font-size: 26px; }
 
-    .fire-badge { padding: 12px; }
-    .fire-circle {
-      width: 140px;
-      height: 140px;
-    }
-    .fire-circle .value { font-size: 28px; }
-    .fire-circle .label { font-size: 8px; }
-    .fire-circle .sub-label { font-size: 8px; }
-
-    .input-row.quad {
-      grid-template-columns: 1fr 1fr;
-    }
-    .input-group {
-      padding: 8px 10px;
-    }
-    .input-group .val {
-      font-size: 16px;
-    }
-    .input-group label {
-      font-size: 7.5px;
-      letter-spacing: 1px;
-    }
-
-    .toggle-row {
-      flex-direction: column;
-    }
-    .toggle-item {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-      width: 100%;
-    }
-    .toggle-item:last-child { border-bottom: none; }
-
-    .results-row {
-      grid-template-columns: 1fr 1fr;
-    }
+    .results-row { grid-template-columns: 1fr 1fr; }
     .result-item {
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-bottom: 1px solid var(--border);
     }
     .result-item:nth-child(odd) { border-right: 2px solid var(--border); }
     .result-item:nth-child(even) { border-right: none; }
-    .result-item .value { font-size: 16px; }
+    .result-item .value { font-size: 15px; }
 
-    .strategy-note {
-      font-size: 9px;
-      padding: 10px 12px;
-    }
-
-    .charts-grid {
-      grid-template-columns: 1fr;
-      gap: 8px;
-    }
-    .chart-wrap { height: 220px; }
+    .chart-wrap { min-height: 200px; }
 
     .table-scroll { max-height: 500px; }
-    table { font-size: 9px; }
-    thead th { font-size: 7px; padding: 6px 4px; }
-    tbody td { font-size: 9px; padding: 4px; }
-
-    .run-btn { padding: 12px; font-size: 11px; }
+    thead th { font-size: 7px; padding: 5px 3px; }
+    tbody td { font-size: 9px; padding: 3px; }
   }
 
   @media (max-width: 480px) {
-    .input-row.quad {
-      grid-template-columns: 1fr;
-    }
-    .input-row {
-      grid-template-columns: 1fr;
-    }
-    .results-row {
-      grid-template-columns: 1fr;
-    }
+    .input-grid { grid-template-columns: 1fr; }
+    .results-row { grid-template-columns: 1fr; }
     .result-item {
       border-right: none !important;
       border-bottom: 1px solid var(--border);
@@ -465,93 +409,92 @@
   <div>Model 2025.AU</div>
 </div>
 
-<div class="top-grid">
-  <div class="fire-badge">
-    <div class="fire-circle">
-      <span class="label">Your FIRE Date</span>
-      <span class="value" id="fireYearDisplay">--</span>
-      <span class="sub-label" id="fireSubDisplay">--</span>
-    </div>
-  </div>
+<!-- ===== TOP: Inputs Left / Charts Right ===== -->
+<div class="top-layout">
 
-  <div class="inputs-col">
+  <!-- LEFT: Fire badge + all inputs -->
+  <div class="left-col">
+    <div class="fire-badge">
+      <div class="fire-circle">
+        <span class="label">Your FIRE Date</span>
+        <span class="value" id="fireYearDisplay">--</span>
+        <span class="sub-label" id="fireSubDisplay">--</span>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="panel-header">Income Target &amp; Assumptions</div>
-      <div class="input-row quad">
-        <div class="input-group">
-          <label>Target Annual Income ($)</label>
-          <div class="val" id="disp_targetIncome">$80,000</div>
-          <input type="range" id="targetIncome" min="10000" max="300000" step="5000" value="80000">
+      <div class="input-grid">
+        <div class="input-cell">
+          <label>Target Annual Income</label>
+          <input type="number" id="targetIncome" value="80000" step="5000">
+          <span class="unit">$ / year</span>
         </div>
-        <div class="input-group">
-          <label>Withdrawal Rate (%)</label>
-          <div class="val" id="disp_withdrawalRate">4.0%</div>
-          <input type="range" id="withdrawalRate" min="2" max="8" step="0.25" value="4">
+        <div class="input-cell">
+          <label>Withdrawal Rate</label>
+          <input type="number" id="withdrawalRate" value="4" step="0.25" min="0.5" max="15">
+          <span class="unit">%</span>
         </div>
-        <div class="input-group">
-          <label>Growth Rate (%)</label>
-          <div class="val" id="disp_growthRate">7.0%</div>
-          <input type="range" id="growthRate" min="1" max="15" step="0.5" value="7">
+        <div class="input-cell">
+          <label>Growth Rate</label>
+          <input type="number" id="growthRate" value="7" step="0.5" min="0" max="30">
+          <span class="unit">% / year</span>
         </div>
-        <div class="input-group">
-          <label>Inflation Rate (%)</label>
-          <div class="val" id="disp_inflationRate">3.0%</div>
-          <input type="range" id="inflationRate" min="0" max="10" step="0.5" value="3">
+        <div class="input-cell">
+          <label>Inflation Rate</label>
+          <input type="number" id="inflationRate" value="3" step="0.5" min="0" max="15">
+          <span class="unit">% / year</span>
         </div>
       </div>
     </div>
 
     <div class="panel">
       <div class="panel-header">Starting Position</div>
-      <div class="input-row quad">
-        <div class="input-group">
+      <div class="input-grid">
+        <div class="input-cell">
           <label>Starting Year</label>
-          <div class="val" id="disp_startYear">2025</div>
-          <input type="range" id="startYear" min="2020" max="2040" step="1" value="2025">
+          <input type="number" id="startYear" value="2025" step="1" min="2000" max="2060">
         </div>
-        <div class="input-group">
+        <div class="input-cell">
           <label>Current Age</label>
-          <div class="val" id="disp_currentAge">32</div>
-          <input type="range" id="currentAge" min="18" max="70" step="1" value="32">
+          <input type="number" id="currentAge" value="32" step="1" min="10" max="80">
         </div>
-        <div class="input-group">
+        <div class="input-cell">
           <label>Super Access Year</label>
-          <div class="val" id="disp_superAccessYear">2051</div>
-          <input type="range" id="superAccessYear" min="2025" max="2075" step="1" value="2051">
+          <input type="number" id="superAccessYear" value="2051" step="1" min="2025" max="2090">
         </div>
-        <div class="input-group" style="display:flex;align-items:center;justify-content:center;">
-          <span style="font-size:8px;letter-spacing:1px;text-transform:uppercase;font-weight:700;opacity:0.4;">Preservation Age Rule</span>
+        <div class="input-cell" style="display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:7px;letter-spacing:1px;text-transform:uppercase;font-weight:700;opacity:0.35;">Preservation Age Rule</span>
         </div>
       </div>
     </div>
 
     <div class="panel">
-      <div class="panel-header">Current Portfolios &amp; Annual Contributions</div>
-      <div class="input-row quad">
-        <div class="input-group">
-          <label>Super Balance ($)</label>
-          <div class="val" id="disp_superBal">$85,000</div>
-          <input type="range" id="superBal" min="0" max="2000000" step="5000" value="85000">
+      <div class="panel-header">Portfolios &amp; Contributions</div>
+      <div class="input-grid">
+        <div class="input-cell">
+          <label>Super Balance</label>
+          <input type="number" id="superBal" value="85000" step="5000" min="0">
+          <span class="unit">$</span>
         </div>
-        <div class="input-group">
-          <label>Super Top-Up / Year ($)</label>
-          <div class="val" id="disp_superContrib">$12,000</div>
-          <input type="range" id="superContrib" min="0" max="100000" step="1000" value="12000">
+        <div class="input-cell">
+          <label>Super Top-Up / Year</label>
+          <input type="number" id="superContrib" value="12000" step="1000" min="0">
+          <span class="unit">$ / year</span>
         </div>
-        <div class="input-group">
-          <label>Non-Super Balance ($)</label>
-          <div class="val" id="disp_nonSuperBal">$45,000</div>
-          <input type="range" id="nonSuperBal" min="0" max="2000000" step="5000" value="45000">
+        <div class="input-cell">
+          <label>Non-Super Balance</label>
+          <input type="number" id="nonSuperBal" value="45000" step="5000" min="0">
+          <span class="unit">$</span>
         </div>
-        <div class="input-group">
-          <label>Non-Super / Year ($)</label>
-          <div class="val" id="disp_nonSuperContrib">$24,000</div>
-          <input type="range" id="nonSuperContrib" min="0" max="200000" step="1000" value="24000">
+        <div class="input-cell">
+          <label>Non-Super / Year</label>
+          <input type="number" id="nonSuperContrib" value="24000" step="1000" min="0">
+          <span class="unit">$ / year</span>
         </div>
       </div>
     </div>
 
-    <!-- Inflation-adjust toggles -->
     <div class="toggle-row">
       <label class="toggle-item">
         <input type="checkbox" id="inflateSuper">
@@ -564,6 +507,18 @@
     </div>
 
     <button class="run-btn" id="runBtn">Run Projection Model</button>
+  </div>
+
+  <!-- RIGHT: Charts stacked -->
+  <div class="right-col">
+    <div class="chart-panel">
+      <div class="panel-header">Portfolio Balances Over Time</div>
+      <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
+    </div>
+    <div class="chart-panel">
+      <div class="panel-header">Annual Returns &amp; Income Drawn</div>
+      <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -592,24 +547,9 @@
   <span id="strategyText">Adjust inputs and run the projection model.</span>
 </div>
 
-<!-- CHARTS -->
-<div class="charts-grid">
-  <div class="chart-panel">
-    <div class="panel-header">Portfolio Balances Over Time</div>
-    <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
-  </div>
-  <div class="chart-panel">
-    <div class="panel-header">Annual Returns &amp; Income Drawn</div>
-    <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
-  </div>
-</div>
-
 <!-- TABLE -->
 <div class="table-section">
-  <div class="panel-header">
-    Year-by-Year Projection
-    <span class="arrows">&#9660; &#9660;</span>
-  </div>
+  <div class="panel-header">Year-by-Year Projection</div>
   <div class="table-scroll">
     <table>
       <thead>
@@ -641,28 +581,7 @@ const fmtShort = (n) => {
   return '$' + Math.round(n);
 };
 
-// Slider display bindings
-const sliders = {
-  targetIncome:    { fmt: (v) => fmt(+v) },
-  withdrawalRate:  { fmt: (v) => (+v).toFixed(1) + '%' },
-  growthRate:      { fmt: (v) => (+v).toFixed(1) + '%' },
-  inflationRate:   { fmt: (v) => (+v).toFixed(1) + '%' },
-  startYear:       { fmt: (v) => v },
-  currentAge:      { fmt: (v) => v },
-  superAccessYear: { fmt: (v) => v },
-  superBal:        { fmt: (v) => fmt(+v) },
-  superContrib:    { fmt: (v) => fmt(+v) },
-  nonSuperBal:     { fmt: (v) => fmt(+v) },
-  nonSuperContrib: { fmt: (v) => fmt(+v) },
-};
-
-for (const [id, cfg] of Object.entries(sliders)) {
-  $(id).addEventListener('input', () => {
-    $('disp_' + id).textContent = cfg.fmt($(id).value);
-  });
-}
-
-// Charts setup
+// Charts
 const chartFont = { family: "'IBM Plex Mono', monospace", size: 10 };
 const gridColor = 'rgba(58,53,32,0.15)';
 Chart.defaults.font.family = chartFont.family;
@@ -672,15 +591,15 @@ Chart.defaults.color = '#3A3520';
 let balanceChart = new Chart($('balanceChart'), {
   type: 'line',
   data: { labels: [], datasets: [
-    { label: 'Super Balance', data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
-    { label: 'Non-Super Balance', data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+    { label: 'Super', data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+    { label: 'Non-Super', data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
   ]},
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position: 'top', labels: { font: chartFont, boxWidth: 12, padding: 12 } } },
+    plugins: { legend: { position: 'top', labels: { font: chartFont, boxWidth: 10, padding: 8 } } },
     scales: {
-      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 12 } },
-      y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 6 } }
+      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
+      y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 5, font: { size: 9 } } }
     }
   }
 });
@@ -694,213 +613,157 @@ let incomeChart = new Chart($('incomeChart'), {
   ]},
   options: {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { position: 'top', labels: { font: chartFont, boxWidth: 12, padding: 12 } } },
+    plugins: { legend: { position: 'top', labels: { font: chartFont, boxWidth: 10, padding: 8 } } },
     scales: {
-      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 12 } },
-      y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 6 } }
+      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
+      y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 5, font: { size: 9 } } }
     }
   }
 });
 
-// FIRE feasibility check for a candidate year
+// FIRE feasibility
 function canFireAt(fireYr, p) {
-  let sBal = p.initSuper;
-  let nsBal = p.initNonSuper;
-
-  // Accumulation phase: grow portfolios to candidate FIRE year
+  let sBal = p.initSuper, nsBal = p.initNonSuper;
   for (let y = p.startYr; y < fireYr; y++) {
-    const yrsFromStart = y - p.startYr;
-    const sCon = p.inflateS ? p.sContrib * Math.pow(1 + p.inflation, yrsFromStart) : p.sContrib;
-    const nsCon = p.inflateNS ? p.nsContrib * Math.pow(1 + p.inflation, yrsFromStart) : p.nsContrib;
-    sBal = sBal * (1 + p.growth) + sCon;
-    nsBal = nsBal * (1 + p.growth) + nsCon;
+    const yrs = y - p.startYr;
+    sBal = sBal * (1 + p.growth) + (p.inflateS ? p.sContrib * Math.pow(1 + p.inflation, yrs) : p.sContrib);
+    nsBal = nsBal * (1 + p.growth) + (p.inflateNS ? p.nsContrib * Math.pow(1 + p.inflation, yrs) : p.nsContrib);
   }
-
-  // Drawdown phase: non-super funds income, super grows passively
-  const yearsToAccess = p.superAccessYr - fireYr;
-  for (let i = 0; i < yearsToAccess; i++) {
-    const adjIncome = p.targetInc * Math.pow(1 + p.inflation, i);
-    nsBal = nsBal * (1 + p.growth) - adjIncome;
+  const gap = p.superAccessYr - fireYr;
+  for (let i = 0; i < gap; i++) {
+    nsBal = nsBal * (1 + p.growth) - p.targetInc * Math.pow(1 + p.inflation, i);
     sBal = sBal * (1 + p.growth);
     if (nsBal < 0) return false;
   }
-
-  // Check: can super sustain retirement from access year onward?
-  const incomeAtAccess = p.targetInc * Math.pow(1 + p.inflation, yearsToAccess);
-  const requiredSuper = incomeAtAccess / (p.withdrawal / 100);
-  return sBal >= requiredSuper;
+  const incAtAccess = p.targetInc * Math.pow(1 + p.inflation, gap);
+  return sBal >= incAtAccess / (p.withdrawal / 100);
 }
 
-// Main projection
 function runProjection() {
   const p = {
-    startYr:       +$('startYear').value,
-    age:           +$('currentAge').value,
+    startYr:     +$('startYear').value,
+    age:         +$('currentAge').value,
     superAccessYr: +$('superAccessYear').value,
-    growth:        +$('growthRate').value / 100,
-    inflation:     +$('inflationRate').value / 100,
-    targetInc:     +$('targetIncome').value,
-    withdrawal:    +$('withdrawalRate').value,
-    initSuper:     +$('superBal').value,
-    initNonSuper:  +$('nonSuperBal').value,
-    sContrib:      +$('superContrib').value,
-    nsContrib:     +$('nonSuperContrib').value,
-    inflateS:      $('inflateSuper').checked,
-    inflateNS:     $('inflateNonSuper').checked,
+    growth:      +$('growthRate').value / 100,
+    inflation:   +$('inflationRate').value / 100,
+    targetInc:   +$('targetIncome').value,
+    withdrawal:  +$('withdrawalRate').value,
+    initSuper:   +$('superBal').value,
+    initNonSuper:+$('nonSuperBal').value,
+    sContrib:    +$('superContrib').value,
+    nsContrib:   +$('nonSuperContrib').value,
+    inflateS:    $('inflateSuper').checked,
+    inflateNS:   $('inflateNonSuper').checked,
   };
 
   const endYr = p.startYr + 100;
 
-  // Find FIRE year
   let fireYr = null;
   for (let y = p.startYr; y <= p.superAccessYr; y++) {
     if (canFireAt(y, p)) { fireYr = y; break; }
   }
 
-  // Update badge
   if (fireYr !== null) {
-    const fireAge = p.age + (fireYr - p.startYr);
+    const fa = p.age + (fireYr - p.startYr);
     $('fireYearDisplay').textContent = fireYr;
-    $('fireSubDisplay').innerHTML = `Age ${fireAge} &middot; ${fireYr - p.startYr} Years<br>From Start`;
+    $('fireSubDisplay').innerHTML = `Age ${fa} &middot; ${fireYr - p.startYr} Yrs<br>From Start`;
   } else {
     $('fireYearDisplay').textContent = 'N/A';
-    $('fireSubDisplay').innerHTML = 'Cannot FIRE before<br>super access';
+    $('fireSubDisplay').innerHTML = 'Cannot FIRE<br>before super';
     fireYr = p.superAccessYr;
   }
 
-  // Year-by-year simulation
-  let sBal = p.initSuper;
-  let nsBal = p.initNonSuper;
-  const years = [], superBals = [], nonSuperBals = [];
-  const sRetArr = [], nsRetArr = [], incArr = [];
+  let sBal = p.initSuper, nsBal = p.initNonSuper;
+  const years=[], sBals=[], nsBals=[], sRets=[], nsRets=[], incD=[];
   let superAtAccess = 0;
-
   const tbody = $('projectionBody');
   tbody.innerHTML = '';
 
   for (let y = p.startYr; y <= endYr; y++) {
     const age = p.age + (y - p.startYr);
-    const yrsFromStart = y - p.startYr;
-    const isFired = y >= fireYr;
-    const isSuperAccess = y >= p.superAccessYr;
+    const yrs = y - p.startYr;
+    const fired = y >= fireYr;
+    const sAccess = y >= p.superAccessYr;
 
-    // Returns on opening balance
     const sRet = Math.round(sBal * p.growth);
     const nsRet = Math.round(nsBal * p.growth);
 
-    // Contributions: stop at FIRE, optionally inflate
     let sc = 0, nsc = 0;
-    if (!isFired) {
-      sc = p.inflateS ? Math.round(p.sContrib * Math.pow(1 + p.inflation, yrsFromStart)) : p.sContrib;
-      nsc = p.inflateNS ? Math.round(p.nsContrib * Math.pow(1 + p.inflation, yrsFromStart)) : p.nsContrib;
+    if (!fired) {
+      sc = p.inflateS ? Math.round(p.sContrib * Math.pow(1 + p.inflation, yrs)) : p.sContrib;
+      nsc = p.inflateNS ? Math.round(p.nsContrib * Math.pow(1 + p.inflation, yrs)) : p.nsContrib;
     }
 
-    // Income drawn (inflation-adjusted from FIRE date)
-    const yearsFromFire = y - fireYr;
-    const adjIncome = isFired ? Math.round(p.targetInc * Math.pow(1 + p.inflation, yearsFromFire)) : 0;
+    const yrsFromFire = y - fireYr;
+    const adj = fired ? Math.round(p.targetInc * Math.pow(1 + p.inflation, yrsFromFire)) : 0;
 
-    let nsDraw = 0, sDraw = 0;
-    if (isFired) {
-      if (!isSuperAccess) {
-        nsDraw = adjIncome;
-      } else {
-        if (nsBal + nsRet > 0) {
-          nsDraw = Math.min(adjIncome, Math.round(nsBal + nsRet));
-          sDraw = adjIncome - nsDraw;
-        } else {
-          sDraw = adjIncome;
-        }
+    let nsDr = 0, sDr = 0;
+    if (fired) {
+      if (!sAccess) { nsDr = adj; }
+      else {
+        if (nsBal + nsRet > 0) { nsDr = Math.min(adj, Math.round(nsBal + nsRet)); sDr = adj - nsDr; }
+        else { sDr = adj; }
       }
     }
+    const totalDr = nsDr + sDr;
 
-    const totalDraw = nsDraw + sDraw;
+    years.push(y); sRets.push(sRet); nsRets.push(nsRet); incD.push(totalDr);
 
-    years.push(y);
-    sRetArr.push(sRet);
-    nsRetArr.push(nsRet);
-    incArr.push(totalDraw);
-
-    // Update balances
-    sBal = sBal + sRet + sc - sDraw;
-    nsBal = nsBal + nsRet + nsc - nsDraw;
-    if (nsBal < 0) nsBal = 0;
-    if (sBal < 0) sBal = 0;
+    sBal = Math.max(0, sBal + sRet + sc - sDr);
+    nsBal = Math.max(0, nsBal + nsRet + nsc - nsDr);
 
     if (y === p.superAccessYr) superAtAccess = sBal;
+    sBals.push(sBal); nsBals.push(nsBal);
+    const comb = sBal + nsBal;
 
-    superBals.push(sBal);
-    nonSuperBals.push(nsBal);
-    const combined = sBal + nsBal;
-
-    // Status
-    let status = '', rowClass = '';
-    if (y === fireYr) {
-      status = `FIRE <span class="tag tag-fire">RETIRE</span>`;
-      rowClass = 'fire-year';
-    } else if (y === p.superAccessYr) {
-      status = `Super Access <span class="tag tag-super">UNLOCKED</span>`;
-      rowClass = 'super-access';
-    } else if (isFired && !isSuperAccess) {
-      status = 'Drawdown';
-    } else if (isFired && isSuperAccess) {
-      status = 'Super Phase';
-    }
-    if (combined <= 0 && isFired) {
-      status = 'Depleted';
-      rowClass = 'depleted';
-    }
+    let st = '', rc = '';
+    if (y === fireYr) { st = `FIRE <span class="tag tag-fire">RETIRE</span>`; rc = 'fire-year'; }
+    else if (y === p.superAccessYr) { st = `Super Access <span class="tag tag-super">UNLOCKED</span>`; rc = 'super-access'; }
+    else if (fired && !sAccess) { st = 'Drawdown'; }
+    else if (fired && sAccess) { st = 'Super Phase'; }
+    if (comb <= 0 && fired) { st = 'Depleted'; rc = 'depleted'; }
 
     const tr = document.createElement('tr');
-    if (rowClass) tr.className = rowClass;
+    if (rc) tr.className = rc;
     tr.innerHTML =
-      `<td>${y}</td>` +
-      `<td>${age}</td>` +
-      `<td>${fmt(sBal)}</td>` +
-      `<td>${fmt(sRet)}</td>` +
-      `<td>${sc ? fmt(sc) : '&mdash;'}</td>` +
-      `<td>${fmt(nsBal)}</td>` +
-      `<td>${fmt(nsRet)}</td>` +
-      `<td>${nsc ? fmt(nsc) : '&mdash;'}</td>` +
-      `<td>${totalDraw ? fmt(totalDraw) : '&mdash;'}</td>` +
-      `<td>${fmt(combined)}</td>` +
-      `<td>${status}</td>`;
+      `<td>${y}</td><td>${age}</td>` +
+      `<td>${fmt(sBal)}</td><td>${fmt(sRet)}</td><td>${sc ? fmt(sc) : '&mdash;'}</td>` +
+      `<td>${fmt(nsBal)}</td><td>${fmt(nsRet)}</td><td>${nsc ? fmt(nsc) : '&mdash;'}</td>` +
+      `<td>${totalDr ? fmt(totalDr) : '&mdash;'}</td><td>${fmt(comb)}</td><td>${st}</td>`;
     tbody.appendChild(tr);
   }
 
-  // Results summary
-  const drawdownYrs = p.superAccessYr - fireYr;
-  const incomeAtAccess = p.targetInc * Math.pow(1 + p.inflation, drawdownYrs);
-  const requiredSuper = incomeAtAccess / (p.withdrawal / 100);
+  const gap = p.superAccessYr - fireYr;
+  const incAccess = p.targetInc * Math.pow(1 + p.inflation, gap);
+  const reqSuper = incAccess / (p.withdrawal / 100);
 
   $('res_fireDate').textContent = fireYr;
-  $('res_targetPortfolio').textContent = fmt(requiredSuper);
-  $('res_drawdownYrs').textContent = drawdownYrs + ' Years';
+  $('res_targetPortfolio').textContent = fmt(reqSuper);
+  $('res_drawdownYrs').textContent = gap + ' Years';
   $('res_superAtAccess').textContent = fmt(superAtAccess);
 
   $('strategyText').textContent =
-    `Non-super portfolio funds retirement from ${fireYr} to ${p.superAccessYr} (${drawdownYrs} years of drawdown). ` +
+    `Non-super portfolio funds retirement from ${fireYr} to ${p.superAccessYr} (${gap} years of drawdown). ` +
     `Super portfolio grows untouched until access year ${p.superAccessYr}, at which point it sustains retirement at ${p.withdrawal}% withdrawal rate.`;
 
-  // Update charts
   balanceChart.data.labels = years;
-  balanceChart.data.datasets[0].data = superBals;
-  balanceChart.data.datasets[1].data = nonSuperBals;
+  balanceChart.data.datasets[0].data = sBals;
+  balanceChart.data.datasets[1].data = nsBals;
   balanceChart.update();
 
   incomeChart.data.labels = years;
-  incomeChart.data.datasets[0].data = sRetArr;
-  incomeChart.data.datasets[1].data = nsRetArr;
-  incomeChart.data.datasets[2].data = incArr;
+  incomeChart.data.datasets[0].data = sRets;
+  incomeChart.data.datasets[1].data = nsRets;
+  incomeChart.data.datasets[2].data = incD;
   incomeChart.update();
 }
 
-// Bind all inputs
+// Bind all inputs for live update
 $('runBtn').addEventListener('click', runProjection);
-document.querySelectorAll('input[type="range"]').forEach(el => el.addEventListener('input', runProjection));
+document.querySelectorAll('input[type="number"]').forEach(el => el.addEventListener('input', runProjection));
 $('inflateSuper').addEventListener('change', runProjection);
 $('inflateNonSuper').addEventListener('change', runProjection);
 
-// Initial run
 runProjection();
 </script>
 
