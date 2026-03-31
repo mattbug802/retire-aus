@@ -408,29 +408,7 @@
 
   /* ==================== PHONE ==================== */
   @media (max-width: 480px) {
-    .panel-pair {
-      display: flex;
-      flex-direction: column;
-      border: none;
-      border-top: none;
-    }
-    .panel-pair .panel {
-      border: 2px solid var(--border);
-      border-top: none;
-    }
-    .panel-pair .panel:first-child {
-      border-right: 2px solid var(--border);
-    }
-    .panel-pair .panel:last-child {
-      border-left: 2px solid var(--border);
-    }
-    .input-grid { grid-template-columns: 1fr; }
-    .results-row { grid-template-columns: 1fr; }
-    .result-item {
-      border-right: none !important;
-      border-bottom: 1px solid var(--border);
-    }
-    .result-item:last-child { border-bottom: none; }
+    .results-row { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
