@@ -247,6 +247,32 @@
     min-height: 180px;
   }
 
+  /* Chart tabs */
+  .chart-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+  }
+  .chart-tab {
+    flex: 1;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    opacity: 0.5;
+  }
+  .chart-tab:last-child { border-right: none; }
+  .chart-tab.active {
+    opacity: 1;
+    background: rgba(58,53,32,0.08);
+  }
+
   /* RESULTS ROW */
   .results-row {
     display: grid;
@@ -520,7 +546,7 @@
 
   </div>
 
-  <!-- RIGHT: Charts stacked -->
+  <!-- RIGHT: Charts stacked with tabs -->
   <div class="right-col">
     <div class="chart-panel">
       <div class="panel-header">Portfolio Balances Over Time</div>
@@ -529,6 +555,14 @@
     <div class="chart-panel">
       <div class="panel-header">Annual Returns &amp; Income Drawn</div>
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-tabs">
+        <button class="chart-tab active" data-tab="incomeTab">Target Income vs FIRE Date</button>
+        <button class="chart-tab" data-tab="growthTab">Growth Rate vs FIRE Date</button>
+      </div>
+      <div class="chart-wrap" id="incomeTab"><canvas id="sensIncomeChart"></canvas></div>
+      <div class="chart-wrap" id="growthTab" style="display:none;"><canvas id="sensGrowthChart"></canvas></div>
     </div>
   </div>
 </div>
@@ -616,20 +650,56 @@ let balanceChart = new Chart($('balanceChart'), {
 });
 
 let incomeChart = new Chart($('incomeChart'), {
-  type: 'line',
+  type: 'bar',
   data: { labels: [], datasets: [
-    { label: 'Super Returns', data: [], borderColor: '#3A3520', tension: 0.3, pointRadius: 0, borderWidth: 2 },
-    { label: 'Non-Super Returns', data: [], borderColor: '#8B4513', tension: 0.3, pointRadius: 0, borderWidth: 2 },
-    { label: 'Income Drawn', data: [], borderColor: '#5A6B35', backgroundColor: 'rgba(90,107,53,0.15)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+    { label: 'Super Returns', data: [], backgroundColor: 'rgba(58,53,32,0.6)', borderColor: '#3A3520', borderWidth: 1 },
+    { label: 'Non-Super Returns', data: [], backgroundColor: 'rgba(139,69,19,0.5)', borderColor: '#8B4513', borderWidth: 1 },
+    { label: 'Income Drawn', data: [], backgroundColor: 'rgba(90,107,53,0.6)', borderColor: '#5A6B35', borderWidth: 1 },
   ]},
   options: {
     responsive: true, maintainAspectRatio: false,
     plugins: { legend: { position: 'top', labels: { font: chartFont, boxWidth: 10, padding: 8 } } },
     scales: {
-      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
+      x: { stacked: false, grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
       y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 5, font: { size: 9 } } }
     }
   }
+});
+
+// Sensitivity charts
+const sensLineOpts = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: gridColor }, ticks: { font: { size: 9 } } },
+    y: { grid: { color: gridColor }, title: { display: true, text: 'FIRE YEAR', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 }, stepSize: 1 } }
+  }
+};
+
+let sensIncomeChart = new Chart($('sensIncomeChart'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#3A3520', borderWidth: 2 },
+  ]},
+  options: { ...sensLineOpts }
+});
+
+let sensGrowthChart = new Chart($('sensGrowthChart'), {
+  type: 'line',
+  data: { labels: [], datasets: [
+    { data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#8B4513', borderWidth: 2 },
+  ]},
+  options: { ...sensLineOpts }
+});
+
+// Tab switching
+document.querySelectorAll('.chart-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $('incomeTab').style.display = btn.dataset.tab === 'incomeTab' ? '' : 'none';
+    $('growthTab').style.display = btn.dataset.tab === 'growthTab' ? '' : 'none';
+  });
 });
 
 // FIRE feasibility
@@ -769,6 +839,43 @@ function runProjection() {
   incomeChart.data.datasets[1].data = nsRets.slice(0, chartEnd);
   incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
+
+  // --- Sensitivity: Target Income vs FIRE Date ---
+  const incSteps = [];
+  const incFires = [];
+  const incMin = Math.max(10000, p.targetInc - 60000);
+  const incMax = p.targetInc + 60000;
+  const incStep = Math.max(5000, Math.round((incMax - incMin) / 12 / 5000) * 5000);
+  for (let inc = incMin; inc <= incMax; inc += incStep) {
+    const tp = { ...p, targetInc: inc };
+    let fy = null;
+    for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
+      if (canFireAt(y, tp)) { fy = y; break; }
+    }
+    incSteps.push('$' + (inc / 1000).toFixed(0) + 'K');
+    incFires.push(fy !== null ? fy : null);
+  }
+  sensIncomeChart.data.labels = incSteps;
+  sensIncomeChart.data.datasets[0].data = incFires;
+  sensIncomeChart.options.scales.x.title = { display: true, text: 'TARGET INCOME', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' };
+  sensIncomeChart.update();
+
+  // --- Sensitivity: Growth Rate vs FIRE Date ---
+  const grSteps = [];
+  const grFires = [];
+  for (let gr = 2; gr <= 12; gr += 0.5) {
+    const tp = { ...p, growth: gr / 100 };
+    let fy = null;
+    for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
+      if (canFireAt(y, tp)) { fy = y; break; }
+    }
+    grSteps.push(gr.toFixed(1) + '%');
+    grFires.push(fy !== null ? fy : null);
+  }
+  sensGrowthChart.data.labels = grSteps;
+  sensGrowthChart.data.datasets[0].data = grFires;
+  sensGrowthChart.options.scales.x.title = { display: true, text: 'GROWTH RATE', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' };
+  sensGrowthChart.update();
 }
 
 // Bind all inputs for live update
