@@ -9,15 +9,16 @@
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #C8A841;
-    --bg-light: #D4B94E;
+    --bg: #ffffff;
+    --bg-light: #f5f5f0;
     --dark: #3A3520;
     --dark-bg: #4A4530;
     --text: #3A3520;
-    --text-light: #C8A841;
+    --text-light: #f5f5f0;
     --border: #3A3520;
     --green-dark: #5A6B35;
     --fire-red: #8B4513;
+    --accent-gold: #C8A841;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -37,6 +38,7 @@
     display: flex;
     border: 2px solid var(--border);
     margin-bottom: 10px;
+    background: var(--accent-gold);
   }
   .header > div {
     padding: 8px 16px;
@@ -68,6 +70,7 @@
 
   .fire-badge {
     border: 2px solid var(--border);
+    background: var(--accent-gold);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,7 +87,7 @@
     justify-content: center;
   }
   .fire-circle .label {
-    color: var(--text-light);
+    color: var(--accent-gold);
     font-size: 8px;
     letter-spacing: 3px;
     text-transform: uppercase;
@@ -92,13 +95,13 @@
     font-weight: 700;
   }
   .fire-circle .value {
-    color: var(--text-light);
+    color: var(--accent-gold);
     font-size: 32px;
     font-weight: 700;
     letter-spacing: 2px;
   }
   .fire-circle .sub-label {
-    color: var(--text-light);
+    color: var(--accent-gold);
     font-size: 8px;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -218,11 +221,10 @@
   }
 
 
-  /* RIGHT COLUMN: charts stacked */
+  /* RIGHT COLUMN: single chart panel */
   .right-col {
     display: flex;
     flex-direction: column;
-    gap: 10px;
     min-width: 0;
   }
   .chart-panel {
@@ -239,12 +241,13 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     border-bottom: 2px solid var(--border);
+    background: var(--accent-gold);
   }
   .chart-wrap {
-    padding: 10px;
-    background: rgba(58,53,32,0.06);
+    padding: 14px;
+    background: var(--bg-light);
     flex: 1;
-    min-height: 180px;
+    min-height: 400px;
   }
 
   /* Chart tabs */
@@ -254,7 +257,7 @@
   }
   .chart-tab {
     flex: 1;
-    padding: 6px 12px;
+    padding: 7px 12px;
     font-family: inherit;
     font-size: 8px;
     font-weight: 700;
@@ -265,13 +268,15 @@
     border-right: 1px solid var(--border);
     color: var(--text);
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.4;
+    transition: opacity 0.15s, background 0.15s;
   }
   .chart-tab:last-child { border-right: none; }
   .chart-tab.active {
     opacity: 1;
-    background: rgba(58,53,32,0.08);
+    background: var(--bg-light);
   }
+  .chart-tab:hover { opacity: 0.7; }
 
   /* RESULTS ROW */
   .results-row {
@@ -304,6 +309,7 @@
     padding: 10px 14px;
     border: 2px solid var(--border);
     border-top: none;
+    background: var(--bg-light);
     font-size: 9px;
     letter-spacing: 1px;
     text-transform: uppercase;
@@ -335,7 +341,7 @@
     text-transform: uppercase;
     font-weight: 700;
     border-bottom: 2px solid var(--border);
-    background: var(--bg-light);
+    background: var(--accent-gold);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -353,12 +359,12 @@
   tbody td:first-child, tbody td:nth-child(2) { text-align: left; }
   tbody td:last-child { text-align: left; }
   tbody tr:hover { background: var(--bg-light); }
-  tbody tr.fire-year { background: var(--dark); color: var(--text-light); font-weight: 700; }
+  tbody tr.fire-year { background: var(--dark); color: #fff; font-weight: 700; }
   tbody tr.fire-year:hover { background: var(--dark-bg); }
   tbody tr.fire-year td { border-bottom-color: rgba(200,168,65,0.3); }
-  tbody tr.super-access { background: var(--green-dark); color: var(--text-light); font-weight: 700; }
+  tbody tr.super-access { background: var(--green-dark); color: #fff; font-weight: 700; }
   tbody tr.super-access:hover { background: #4a5a2a; }
-  tbody tr.depleted { background: var(--fire-red); color: var(--text-light); font-weight: 700; }
+  tbody tr.depleted { background: var(--fire-red); color: #fff; font-weight: 700; }
   .table-scroll { max-height: 600px; overflow-y: auto; }
   .tag {
     display: inline-block;
@@ -370,8 +376,8 @@
     border-radius: 2px;
     margin-left: 3px;
   }
-  .tag-fire { background: var(--fire-red); color: var(--text-light); }
-  .tag-super { background: var(--green-dark); color: var(--text-light); }
+  .tag-fire { background: var(--fire-red); color: #fff; }
+  .tag-super { background: var(--green-dark); color: #fff; }
 
   /* Mobile: two-column panel pairs */
   .panel-pair {
@@ -425,7 +431,7 @@
     .result-item:nth-child(even) { border-right: none; }
     .result-item .value { font-size: 15px; }
 
-    .chart-wrap { min-height: 200px; }
+    .chart-wrap { min-height: 300px; }
 
     .table-scroll { max-height: 500px; }
     thead th { font-size: 7px; padding: 5px 3px; }
@@ -546,24 +552,20 @@
 
   </div>
 
-  <!-- RIGHT: Charts stacked with tabs -->
+  <!-- RIGHT: Single chart panel with tabs -->
   <div class="right-col">
     <div class="chart-panel">
-      <div class="panel-header">Portfolio Balances Over Time</div>
-      <div class="chart-wrap"><canvas id="balanceChart"></canvas></div>
-    </div>
-    <div class="chart-panel">
-      <div class="panel-header">Annual Returns &amp; Income Drawn</div>
-      <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
-    </div>
-    <div class="chart-panel">
-      <div class="panel-header">Sensitivity Analysis</div>
+      <div class="panel-header">Charts</div>
       <div class="chart-tabs">
-        <button class="chart-tab active" data-tab="incomeTab">FIRE Date vs Target Income</button>
-        <button class="chart-tab" data-tab="growthTab">FIRE Date vs Growth Rate</button>
+        <button class="chart-tab active" data-tab="tab-balance">Portfolio Balances</button>
+        <button class="chart-tab" data-tab="tab-returns">Returns &amp; Income</button>
+        <button class="chart-tab" data-tab="tab-sens-income">Sensitivity: Income</button>
+        <button class="chart-tab" data-tab="tab-sens-growth">Sensitivity: Growth</button>
       </div>
-      <div class="chart-wrap" id="incomeTab"><canvas id="sensIncomeChart"></canvas></div>
-      <div class="chart-wrap" id="growthTab" style="display:none;"><canvas id="sensGrowthChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-balance"><canvas id="balanceChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-returns" style="display:none;"><canvas id="incomeChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-sens-income" style="display:none;"><canvas id="sensIncomeChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-sens-growth" style="display:none;"><canvas id="sensGrowthChart"></canvas></div>
     </div>
   </div>
 </div>
@@ -698,8 +700,8 @@ document.querySelectorAll('.chart-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    $('incomeTab').style.display = btn.dataset.tab === 'incomeTab' ? '' : 'none';
-    $('growthTab').style.display = btn.dataset.tab === 'growthTab' ? '' : 'none';
+    document.querySelectorAll('.chart-tab-content').forEach(el => el.style.display = 'none');
+    $(btn.dataset.tab).style.display = '';
   });
 });
 
