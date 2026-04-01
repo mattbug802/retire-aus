@@ -247,10 +247,14 @@
   .chart-wrap {
     padding: 14px;
     background: var(--bg-light);
-    flex: 1;
-    min-height: 400px;
-    position: relative;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+  }
+  .chart-wrap canvas {
+    flex: 1;
+    min-height: 0;
   }
 
   /* Chart tabs */
@@ -434,7 +438,7 @@
     .result-item:nth-child(even) { border-right: none; }
     .result-item .value { font-size: 15px; }
 
-    .chart-wrap { min-height: 300px; }
+    .chart-wrap { height: 400px; }
 
     .table-scroll { max-height: 500px; }
     thead th { font-size: 7px; padding: 5px 3px; }
@@ -566,15 +570,15 @@
         <button class="chart-tab" data-tab="tab-sens-income">Sensitivity: Income</button>
         <button class="chart-tab" data-tab="tab-sens-growth">Sensitivity: Growth</button>
       </div>
-      <div class="chart-wrap chart-tab-content" id="tab-balance"><canvas id="balanceChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-balance" style="display:flex;"><canvas id="balanceChart"></canvas></div>
       <div class="chart-wrap chart-tab-content" id="tab-returns" style="display:none;"><canvas id="incomeChart"></canvas></div>
       <div class="chart-wrap chart-tab-content" id="tab-progress" style="display:none;"><canvas id="progressChart"></canvas></div>
       <div class="chart-wrap chart-tab-content" id="tab-sens-income" style="display:none;">
-        <div style="padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the maximum annual income you could sustain for each possible FIRE year, given your current balances, contributions, and growth rate.</div>
+        <div style="flex-shrink:0;padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the maximum annual income you could sustain for each possible FIRE year, given your current balances, contributions, and growth rate.</div>
         <canvas id="sensIncomeChart"></canvas>
       </div>
       <div class="chart-wrap chart-tab-content" id="tab-sens-growth" style="display:none;">
-        <div style="padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the minimum portfolio growth rate required to achieve each possible FIRE year, given your current balances, contributions, and target income.</div>
+        <div style="flex-shrink:0;padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the minimum portfolio growth rate required to achieve each possible FIRE year, given your current balances, contributions, and target income.</div>
         <canvas id="sensGrowthChart"></canvas>
       </div>
     </div>
@@ -733,7 +737,7 @@ document.querySelectorAll('.chart-tab').forEach(btn => {
     document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.chart-tab-content').forEach(el => el.style.display = 'none');
-    $(btn.dataset.tab).style.display = '';
+    $(btn.dataset.tab).style.display = 'flex';
     const c = allCharts[btn.dataset.tab];
     if (c) setTimeout(() => c.resize(), 0);
   });
