@@ -249,6 +249,8 @@
     background: var(--bg-light);
     flex: 1;
     min-height: 400px;
+    position: relative;
+    overflow: hidden;
   }
 
   /* Chart tabs */
@@ -725,12 +727,15 @@ let sensGrowthChart = new Chart($('sensGrowthChart'), {
 });
 
 // Tab switching
+const allCharts = { 'tab-balance': balanceChart, 'tab-returns': incomeChart, 'tab-progress': progressChart, 'tab-sens-income': sensIncomeChart, 'tab-sens-growth': sensGrowthChart };
 document.querySelectorAll('.chart-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.chart-tab-content').forEach(el => el.style.display = 'none');
     $(btn.dataset.tab).style.display = '';
+    const c = allCharts[btn.dataset.tab];
+    if (c) setTimeout(() => c.resize(), 0);
   });
 });
 
@@ -872,21 +877,21 @@ function runProjection() {
   incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
 
-  // Progress chart: % of way towards FIRE goal each year before FIRE
+  // Progress chart: % of way towards FIRE goal each year up to and including FIRE year
   const fireIdx = fireYr - p.startYr;
   const progLabels = [], progData = [];
-  // The "goal" is the combined balance needed at FIRE year
-  // At FIRE year, non-super must bridge to super access, and super must sustain after
-  const goalSuper = reqSuper;
-  const goalNonSuper = (function() {
+  // Goal = combined balance needed at FIRE year
+  // Super needs to grow from FIRE year to access year to reach reqSuper
+  const goalSuperAtFire = reqSuper / Math.pow(1 + p.growth, gap);
+  // Non-super needs to fund income from FIRE to super access (present value at FIRE year)
+  const goalNonSuperAtFire = (function() {
     let need = 0;
-    const g = p.superAccessYr - fireYr;
-    for (let i = g - 1; i >= 0; i--) {
+    for (let i = gap - 1; i >= 0; i--) {
       need = (need + p.targetInc * Math.pow(1 + p.inflation, i)) / (1 + p.growth);
     }
     return need;
   })();
-  const totalGoal = goalSuper + goalNonSuper;
+  const totalGoal = goalSuperAtFire + goalNonSuperAtFire;
   for (let i = 0; i <= fireIdx && i < sBals.length; i++) {
     progLabels.push(years[i]);
     const pct = totalGoal > 0 ? Math.min(100, (sBals[i] + nsBals[i]) / totalGoal * 100) : 0;
