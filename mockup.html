@@ -557,9 +557,10 @@
       <div class="chart-wrap"><canvas id="incomeChart"></canvas></div>
     </div>
     <div class="chart-panel">
+      <div class="panel-header">Sensitivity Analysis</div>
       <div class="chart-tabs">
-        <button class="chart-tab active" data-tab="incomeTab">Target Income vs FIRE Date</button>
-        <button class="chart-tab" data-tab="growthTab">Growth Rate vs FIRE Date</button>
+        <button class="chart-tab active" data-tab="incomeTab">FIRE Date vs Target Income</button>
+        <button class="chart-tab" data-tab="growthTab">FIRE Date vs Growth Rate</button>
       </div>
       <div class="chart-wrap" id="incomeTab"><canvas id="sensIncomeChart"></canvas></div>
       <div class="chart-wrap" id="growthTab" style="display:none;"><canvas id="sensGrowthChart"></canvas></div>
@@ -666,22 +667,22 @@ let incomeChart = new Chart($('incomeChart'), {
   }
 });
 
-// Sensitivity charts
-const sensLineOpts = {
+// Sensitivity charts — FIRE year on X axis
+const sensOpts = (yLabel) => ({
   responsive: true, maintainAspectRatio: false,
   plugins: { legend: { display: false } },
   scales: {
-    x: { grid: { color: gridColor }, ticks: { font: { size: 9 } } },
-    y: { grid: { color: gridColor }, title: { display: true, text: 'FIRE YEAR', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 }, stepSize: 1 } }
+    x: { grid: { color: gridColor }, title: { display: true, text: 'FIRE YEAR', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 } } },
+    y: { grid: { color: gridColor }, title: { display: true, text: yLabel, font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 } } }
   }
-};
+});
 
 let sensIncomeChart = new Chart($('sensIncomeChart'), {
   type: 'line',
   data: { labels: [], datasets: [
     { data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#3A3520', borderWidth: 2 },
   ]},
-  options: { ...sensLineOpts }
+  options: sensOpts('TARGET INCOME')
 });
 
 let sensGrowthChart = new Chart($('sensGrowthChart'), {
@@ -689,7 +690,7 @@ let sensGrowthChart = new Chart($('sensGrowthChart'), {
   data: { labels: [], datasets: [
     { data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#8B4513', borderWidth: 2 },
   ]},
-  options: { ...sensLineOpts }
+  options: sensOpts('GROWTH RATE')
 });
 
 // Tab switching
@@ -840,9 +841,9 @@ function runProjection() {
   incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
 
-  // --- Sensitivity: Target Income vs FIRE Date ---
-  const incSteps = [];
-  const incFires = [];
+  // --- Sensitivity: FIRE Date (X) vs Target Income (Y) ---
+  // Build map: fire year -> [income values that produce it]
+  const incMap = new Map();
   const incMin = Math.max(10000, p.targetInc - 60000);
   const incMax = p.targetInc + 60000;
   const incStep = Math.max(5000, Math.round((incMax - incMin) / 12 / 5000) * 5000);
@@ -852,29 +853,38 @@ function runProjection() {
     for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
       if (canFireAt(y, tp)) { fy = y; break; }
     }
-    incSteps.push('$' + (inc / 1000).toFixed(0) + 'K');
-    incFires.push(fy !== null ? fy : null);
+    if (fy !== null) {
+      if (!incMap.has(fy)) incMap.set(fy, []);
+      incMap.get(fy).push(inc);
+    }
   }
-  sensIncomeChart.data.labels = incSteps;
-  sensIncomeChart.data.datasets[0].data = incFires;
-  sensIncomeChart.options.scales.x.title = { display: true, text: 'TARGET INCOME', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' };
+  const incYears = [...incMap.keys()].sort((a, b) => a - b);
+  // For each fire year, show the max income that still achieves it
+  const incVals = incYears.map(y => Math.max(...incMap.get(y)));
+  sensIncomeChart.data.labels = incYears.map(String);
+  sensIncomeChart.data.datasets[0].data = incVals;
+  sensIncomeChart.options.scales.y.ticks = { font: { size: 9 }, callback: (v) => '$' + (v/1000).toFixed(0) + 'K' };
   sensIncomeChart.update();
 
-  // --- Sensitivity: Growth Rate vs FIRE Date ---
-  const grSteps = [];
-  const grFires = [];
+  // --- Sensitivity: FIRE Date (X) vs Growth Rate (Y) ---
+  const grMap = new Map();
   for (let gr = 2; gr <= 12; gr += 0.5) {
     const tp = { ...p, growth: gr / 100 };
     let fy = null;
     for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
       if (canFireAt(y, tp)) { fy = y; break; }
     }
-    grSteps.push(gr.toFixed(1) + '%');
-    grFires.push(fy !== null ? fy : null);
+    if (fy !== null) {
+      if (!grMap.has(fy)) grMap.set(fy, []);
+      grMap.get(fy).push(gr);
+    }
   }
-  sensGrowthChart.data.labels = grSteps;
-  sensGrowthChart.data.datasets[0].data = grFires;
-  sensGrowthChart.options.scales.x.title = { display: true, text: 'GROWTH RATE', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' };
+  const grYears = [...grMap.keys()].sort((a, b) => a - b);
+  // For each fire year, show the min growth rate that achieves it
+  const grVals = grYears.map(y => Math.min(...grMap.get(y)));
+  sensGrowthChart.data.labels = grYears.map(String);
+  sensGrowthChart.data.datasets[0].data = grVals;
+  sensGrowthChart.options.scales.y.ticks = { font: { size: 9 }, callback: (v) => v.toFixed(1) + '%' };
   sensGrowthChart.update();
 }
 
