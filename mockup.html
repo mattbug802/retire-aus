@@ -670,32 +670,32 @@ let incomeChart = new Chart($('incomeChart'), {
 });
 
 // Sensitivity charts — sweep variable on X, FIRE year on Y
-const sensOpts = (xLabel) => ({
+const sensOpts = (yLabel, yTickCb, yStepSize) => ({
   responsive: true, maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    tooltip: { callbacks: { label: (ctx) => 'FIRE: ' + ctx.parsed.y } }
+    tooltip: { callbacks: { label: (ctx) => yLabel + ': ' + (yTickCb ? yTickCb(ctx.parsed.y) : ctx.parsed.y) } }
   },
   scales: {
-    x: { grid: { color: gridColor }, title: { display: true, text: xLabel, font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 } } },
-    y: { reverse: true, grid: { color: gridColor }, title: { display: true, text: 'FIRE YEAR', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 }, stepSize: 1 } }
+    x: { grid: { color: gridColor }, title: { display: true, text: 'FIRE YEAR', font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 } } },
+    y: { grid: { color: gridColor }, title: { display: true, text: yLabel, font: { size: 9, weight: 'bold', family: chartFont.family }, color: '#3A3520' }, ticks: { font: { size: 9 }, callback: yTickCb, stepSize: yStepSize } }
   }
 });
 
 let sensIncomeChart = new Chart($('sensIncomeChart'), {
-  type: 'line',
+  type: 'bar',
   data: { labels: [], datasets: [
-    { data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.08)', fill: true, tension: 0, pointRadius: 4, pointBackgroundColor: '#3A3520', borderWidth: 2, stepped: 'middle' },
+    { data: [], backgroundColor: 'rgba(58,53,32,0.25)', borderColor: '#3A3520', borderWidth: 1 },
   ]},
-  options: sensOpts('TARGET INCOME')
+  options: sensOpts('TARGET INCOME', (v) => '$' + (v/1000).toFixed(0) + 'K', 10000)
 });
 
 let sensGrowthChart = new Chart($('sensGrowthChart'), {
-  type: 'line',
+  type: 'bar',
   data: { labels: [], datasets: [
-    { data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.08)', fill: true, tension: 0, pointRadius: 4, pointBackgroundColor: '#8B4513', borderWidth: 2, stepped: 'middle' },
+    { data: [], backgroundColor: 'rgba(139,69,19,0.25)', borderColor: '#8B4513', borderWidth: 1 },
   ]},
-  options: sensOpts('GROWTH RATE')
+  options: sensOpts('GROWTH RATE', (v) => v.toFixed(1) + '%', 0.5)
 });
 
 // Tab switching
@@ -846,37 +846,38 @@ function runProjection() {
   incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
 
-  // --- Sensitivity: Target Income (X) vs FIRE Year (Y) ---
-  const incLabels = [], incData = [];
-  const incMin = Math.max(10000, p.targetInc - 60000);
-  const incMax = p.targetInc + 60000;
-  const incStep = Math.max(5000, Math.round((incMax - incMin) / 20 / 5000) * 5000) || 5000;
-  for (let inc = incMin; inc <= incMax; inc += incStep) {
-    const tp = { ...p, targetInc: inc };
-    let fy = null;
-    for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
-      if (canFireAt(y, tp)) { fy = y; break; }
+  // --- Sensitivity: FIRE Year (X) vs Max Target Income (Y) ---
+  // Binary search for highest income that works at each FIRE year
+  const incYearLabels = [], incYearData = [];
+  for (let fy = p.startYr; fy <= p.superAccessYr; fy++) {
+    let lo = 5000, hi = 500000;
+    if (!canFireAt(fy, { ...p, targetInc: lo })) continue;
+    for (let i = 0; i < 20; i++) {
+      const mid = Math.round((lo + hi) / 2);
+      if (canFireAt(fy, { ...p, targetInc: mid })) lo = mid; else hi = mid;
     }
-    incLabels.push('$' + (inc / 1000).toFixed(0) + 'K');
-    incData.push(fy);
+    incYearLabels.push(String(fy));
+    incYearData.push(Math.round(lo / 1000) * 1000);
   }
-  sensIncomeChart.data.labels = incLabels;
-  sensIncomeChart.data.datasets[0].data = incData;
+  sensIncomeChart.data.labels = incYearLabels;
+  sensIncomeChart.data.datasets[0].data = incYearData;
   sensIncomeChart.update();
 
-  // --- Sensitivity: Growth Rate (X) vs FIRE Year (Y) ---
-  const grLabels = [], grData = [];
-  for (let gr = 2; gr <= 12; gr += 0.5) {
-    const tp = { ...p, growth: gr / 100 };
-    let fy = null;
-    for (let y = tp.startYr; y <= tp.superAccessYr; y++) {
-      if (canFireAt(y, tp)) { fy = y; break; }
+  // --- Sensitivity: FIRE Year (X) vs Min Growth Rate (Y) ---
+  // Binary search for lowest growth rate that works at each FIRE year
+  const grYearLabels = [], grYearData = [];
+  for (let fy = p.startYr; fy <= p.superAccessYr; fy++) {
+    let lo = 0.5, hi = 20;
+    if (!canFireAt(fy, { ...p, growth: hi / 100 })) continue;
+    for (let i = 0; i < 20; i++) {
+      const mid = (lo + hi) / 2;
+      if (canFireAt(fy, { ...p, growth: mid / 100 })) hi = mid; else lo = mid;
     }
-    grLabels.push(gr.toFixed(1) + '%');
-    grData.push(fy);
+    grYearLabels.push(String(fy));
+    grYearData.push(Math.round(hi * 4) / 4);
   }
-  sensGrowthChart.data.labels = grLabels;
-  sensGrowthChart.data.datasets[0].data = grData;
+  sensGrowthChart.data.labels = grYearLabels;
+  sensGrowthChart.data.datasets[0].data = grYearData;
   sensGrowthChart.update();
 }
 
