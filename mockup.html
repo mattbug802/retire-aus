@@ -149,11 +149,12 @@
   }
   .input-cell input[type="number"] {
     width: 100%;
+    min-width: 0;
     background: transparent;
     border: none;
     border-bottom: 2px solid var(--border);
     font-family: inherit;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--text);
     padding: 2px 0;
@@ -480,7 +481,7 @@
           </div>
           <div class="input-cell">
             <label>Growth Rate</label>
-            <input type="number" id="growthRate" value="7" step="0.5" min="0" max="30">
+            <input type="number" id="growthRate" value="7.5" step="0.5" min="0" max="30">
             <span class="unit">% / year</span>
           </div>
           <div class="input-cell">
@@ -505,12 +506,12 @@
             <span class="unit">$ / year</span>
           </div>
           <div class="input-cell">
-            <label>Non-Super Balance</label>
+            <label>Investment Portfolio</label>
             <input type="number" id="nonSuperBal" value="45000" step="5000" min="0">
-            <span class="unit">$</span>
+            <span class="unit">$ (excl. home)</span>
           </div>
           <div class="input-cell">
-            <label>Non-Super / Year</label>
+            <label>Investment / Year</label>
             <input type="number" id="nonSuperContrib" value="24000" step="1000" min="0">
             <span class="unit">$ / year</span>
           </div>
@@ -546,7 +547,7 @@
       </label>
       <label class="toggle-item">
         <input type="checkbox" id="inflateNonSuper">
-        <span>Increase non-super contributions with inflation</span>
+        <span>Increase investment contributions with inflation</span>
       </label>
     </div>
 
@@ -559,13 +560,21 @@
       <div class="chart-tabs">
         <button class="chart-tab active" data-tab="tab-balance">Portfolio Balances</button>
         <button class="chart-tab" data-tab="tab-returns">Returns &amp; Income</button>
+        <button class="chart-tab" data-tab="tab-progress">Progress</button>
         <button class="chart-tab" data-tab="tab-sens-income">Sensitivity: Income</button>
         <button class="chart-tab" data-tab="tab-sens-growth">Sensitivity: Growth</button>
       </div>
       <div class="chart-wrap chart-tab-content" id="tab-balance"><canvas id="balanceChart"></canvas></div>
       <div class="chart-wrap chart-tab-content" id="tab-returns" style="display:none;"><canvas id="incomeChart"></canvas></div>
-      <div class="chart-wrap chart-tab-content" id="tab-sens-income" style="display:none;"><canvas id="sensIncomeChart"></canvas></div>
-      <div class="chart-wrap chart-tab-content" id="tab-sens-growth" style="display:none;"><canvas id="sensGrowthChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-progress" style="display:none;"><canvas id="progressChart"></canvas></div>
+      <div class="chart-wrap chart-tab-content" id="tab-sens-income" style="display:none;">
+        <div style="padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the maximum annual income you could sustain for each possible FIRE year, given your current balances, contributions, and growth rate.</div>
+        <canvas id="sensIncomeChart"></canvas>
+      </div>
+      <div class="chart-wrap chart-tab-content" id="tab-sens-growth" style="display:none;">
+        <div style="padding:0 0 8px 0;font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:0.6;line-height:1.6;">Shows the minimum portfolio growth rate required to achieve each possible FIRE year, given your current balances, contributions, and target income.</div>
+        <canvas id="sensGrowthChart"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -581,7 +590,7 @@
     <div class="value" id="res_targetPortfolio">--</div>
   </div>
   <div class="result-item">
-    <div class="label">Non-Super Drawdown Yrs</div>
+    <div class="label">Investment Drawdown Yrs</div>
     <div class="value" id="res_drawdownYrs">--</div>
   </div>
   <div class="result-item">
@@ -607,9 +616,9 @@
           <th>Super Bal</th>
           <th>Super Return</th>
           <th>Super Contrib</th>
-          <th>Non-Super Bal</th>
-          <th>Non-Super Return</th>
-          <th>Non-Super Contrib</th>
+          <th>Invest Bal</th>
+          <th>Invest Return</th>
+          <th>Invest Contrib</th>
           <th>Income Drawn</th>
           <th>Combined Balance</th>
           <th>Status</th>
@@ -640,7 +649,7 @@ let balanceChart = new Chart($('balanceChart'), {
   type: 'line',
   data: { labels: [], datasets: [
     { label: 'Super', data: [], borderColor: '#3A3520', backgroundColor: 'rgba(58,53,32,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
-    { label: 'Non-Super', data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+    { label: 'Investment', data: [], borderColor: '#8B4513', backgroundColor: 'rgba(139,69,19,0.1)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2 },
   ]},
   options: {
     responsive: true, maintainAspectRatio: false,
@@ -656,7 +665,7 @@ let incomeChart = new Chart($('incomeChart'), {
   type: 'bar',
   data: { labels: [], datasets: [
     { label: 'Super Returns', data: [], backgroundColor: 'rgba(58,53,32,0.6)', borderColor: '#3A3520', borderWidth: 1 },
-    { label: 'Non-Super Returns', data: [], backgroundColor: 'rgba(139,69,19,0.5)', borderColor: '#8B4513', borderWidth: 1 },
+    { label: 'Investment Returns', data: [], backgroundColor: 'rgba(139,69,19,0.5)', borderColor: '#8B4513', borderWidth: 1 },
     { label: 'Income Drawn', data: [], backgroundColor: 'rgba(90,107,53,0.6)', borderColor: '#5A6B35', borderWidth: 1 },
   ]},
   options: {
@@ -665,6 +674,23 @@ let incomeChart = new Chart($('incomeChart'), {
     scales: {
       x: { stacked: false, grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
       y: { grid: { color: gridColor }, ticks: { callback: fmtShort, maxTicksLimit: 5, font: { size: 9 } } }
+    }
+  }
+});
+
+let progressChart = new Chart($('progressChart'), {
+  type: 'bar',
+  data: { labels: [], datasets: [
+    { label: '% of FIRE Goal', data: [], backgroundColor: 'rgba(200,168,65,0.4)', borderColor: '#C8A841', borderWidth: 1 },
+  ]},
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => ctx.parsed.y.toFixed(1) + '%' } }
+    },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { maxTicksLimit: 10, font: { size: 9 } } },
+      y: { grid: { color: gridColor }, ticks: { callback: (v) => v + '%', font: { size: 9 } }, max: 100 }
     }
   }
 });
@@ -845,6 +871,30 @@ function runProjection() {
   incomeChart.data.datasets[1].data = nsRets.slice(0, chartEnd);
   incomeChart.data.datasets[2].data = incD.slice(0, chartEnd);
   incomeChart.update();
+
+  // Progress chart: % of way towards FIRE goal each year before FIRE
+  const fireIdx = fireYr - p.startYr;
+  const progLabels = [], progData = [];
+  // The "goal" is the combined balance needed at FIRE year
+  // At FIRE year, non-super must bridge to super access, and super must sustain after
+  const goalSuper = reqSuper;
+  const goalNonSuper = (function() {
+    let need = 0;
+    const g = p.superAccessYr - fireYr;
+    for (let i = g - 1; i >= 0; i--) {
+      need = (need + p.targetInc * Math.pow(1 + p.inflation, i)) / (1 + p.growth);
+    }
+    return need;
+  })();
+  const totalGoal = goalSuper + goalNonSuper;
+  for (let i = 0; i <= fireIdx && i < sBals.length; i++) {
+    progLabels.push(years[i]);
+    const pct = totalGoal > 0 ? Math.min(100, (sBals[i] + nsBals[i]) / totalGoal * 100) : 0;
+    progData.push(Math.round(pct * 10) / 10);
+  }
+  progressChart.data.labels = progLabels;
+  progressChart.data.datasets[0].data = progData;
+  progressChart.update();
 
   // --- Sensitivity: FIRE Year (X) vs Max Target Income (Y) ---
   // Binary search for highest income that works at each FIRE year
