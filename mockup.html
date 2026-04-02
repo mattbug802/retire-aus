@@ -260,15 +260,17 @@
   /* Chart tabs */
   .chart-tabs {
     display: flex;
+    flex-wrap: wrap;
     border-bottom: 2px solid var(--border);
   }
   .chart-tab {
-    flex: 1;
-    padding: 7px 12px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 7px 6px;
     font-family: inherit;
-    font-size: 8px;
+    font-size: 7px;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     background: transparent;
     border: none;
@@ -277,6 +279,9 @@
     cursor: pointer;
     opacity: 0.4;
     transition: opacity 0.15s, background 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .chart-tab:last-child { border-right: none; }
   .chart-tab.active {
@@ -290,6 +295,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     border: 2px solid var(--border);
+    border-top: none;
     margin-bottom: 0;
   }
   .result-item {
@@ -582,32 +588,32 @@
         <canvas id="sensGrowthChart"></canvas>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- RESULTS -->
-<div class="results-row">
-  <div class="result-item">
-    <div class="label">FIRE Date</div>
-    <div class="value" id="res_fireDate">--</div>
-  </div>
-  <div class="result-item">
-    <div class="label">Required Portfolio at Super Access</div>
-    <div class="value" id="res_targetPortfolio">--</div>
-  </div>
-  <div class="result-item">
-    <div class="label">Investment Drawdown Yrs</div>
-    <div class="value" id="res_drawdownYrs">--</div>
-  </div>
-  <div class="result-item">
-    <div class="label">Super Balance at Access</div>
-    <div class="value" id="res_superAtAccess">--</div>
-  </div>
-</div>
+    <!-- RESULTS (inside right column) -->
+    <div class="results-row">
+      <div class="result-item">
+        <div class="label">FIRE Date</div>
+        <div class="value" id="res_fireDate">--</div>
+      </div>
+      <div class="result-item">
+        <div class="label">Required Portfolio at Super Access</div>
+        <div class="value" id="res_targetPortfolio">--</div>
+      </div>
+      <div class="result-item">
+        <div class="label">Investment Drawdown Yrs</div>
+        <div class="value" id="res_drawdownYrs">--</div>
+      </div>
+      <div class="result-item">
+        <div class="label">Super Balance at Access</div>
+        <div class="value" id="res_superAtAccess">--</div>
+      </div>
+    </div>
 
-<div class="strategy-note">
-  <strong>Strategy Summary</strong>
-  <span id="strategyText">Adjust inputs and run the projection model.</span>
+    <div class="strategy-note">
+      <strong>Strategy Summary</strong>
+      <span id="strategyText">Adjust inputs and run the projection model.</span>
+    </div>
+  </div>
 </div>
 
 <!-- TABLE -->
