@@ -958,6 +958,8 @@ function runProjection() {
   }
   sensIncomeChart.data.labels = incYearLabels;
   sensIncomeChart.data.datasets[0].data = incYearData;
+  sensIncomeChart.options.scales.y.min = Math.round(p.targetInc * 0.5);
+  sensIncomeChart.options.scales.y.max = Math.round(p.targetInc * 1.5);
   sensIncomeChart.update();
 
   // --- Sensitivity: FIRE Year (X) vs Min Growth Rate (Y) ---
