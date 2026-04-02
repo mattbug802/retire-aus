@@ -133,6 +133,9 @@
     grid-template-columns: 1fr 1fr;
     gap: 0;
   }
+  .input-grid.wide-narrow {
+    grid-template-columns: 1.4fr 0.6fr;
+  }
   .input-cell {
     padding: 6px 10px;
     border: 1px solid rgba(58,53,32,0.3);
@@ -147,7 +150,8 @@
     font-weight: 700;
     opacity: 0.7;
   }
-  .input-cell input[type="number"] {
+  .input-cell input[type="number"],
+  .input-cell input[type="text"] {
     width: 100%;
     min-width: 0;
     background: transparent;
@@ -166,7 +170,8 @@
     -webkit-appearance: none;
     margin: 0;
   }
-  .input-cell input[type="number"]:focus {
+  .input-cell input[type="number"]:focus,
+  .input-cell input[type="text"]:focus {
     border-bottom-color: var(--fire-red);
   }
   .input-cell .unit {
@@ -480,10 +485,10 @@
     <div class="panel-pair">
       <div class="panel">
         <div class="panel-header">Income Target &amp; Assumptions</div>
-        <div class="input-grid">
+        <div class="input-grid wide-narrow">
           <div class="input-cell">
             <label>Target Annual Income</label>
-            <input type="number" id="targetIncome" value="80000" step="5000">
+            <input type="text" id="targetIncome" inputmode="numeric" value="80,000">
             <span class="unit">$ / year</span>
           </div>
           <div class="input-cell">
@@ -509,22 +514,22 @@
         <div class="input-grid">
           <div class="input-cell">
             <label>Super Balance</label>
-            <input type="number" id="superBal" value="85000" step="5000" min="0">
+            <input type="text" id="superBal" inputmode="numeric" value="85,000">
             <span class="unit">$</span>
           </div>
           <div class="input-cell">
             <label>Super Top-Up / Year</label>
-            <input type="number" id="superContrib" value="12000" step="1000" min="0">
+            <input type="text" id="superContrib" inputmode="numeric" value="12,000">
             <span class="unit">$ / year</span>
           </div>
           <div class="input-cell">
             <label>Investment Portfolio</label>
-            <input type="number" id="nonSuperBal" value="45000" step="5000" min="0">
+            <input type="text" id="nonSuperBal" inputmode="numeric" value="45,000">
             <span class="unit">$ (excl. home)</span>
           </div>
           <div class="input-cell">
             <label>Investment / Year</label>
-            <input type="number" id="nonSuperContrib" value="24000" step="1000" min="0">
+            <input type="text" id="nonSuperContrib" inputmode="numeric" value="24,000">
             <span class="unit">$ / year</span>
           </div>
         </div>
@@ -644,6 +649,18 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => '$' + Math.round(n).toLocaleString();
+// Parse comma-formatted text input to number
+const parseNum = (id) => +$(id).value.replace(/,/g, '');
+// Format a text input with commas on blur
+function commaFmt(el) {
+  const v = +el.value.replace(/,/g, '');
+  if (!isNaN(v)) el.value = v.toLocaleString();
+}
+// Dollar input IDs
+const dollarInputs = ['targetIncome','superBal','superContrib','nonSuperBal','nonSuperContrib'];
+dollarInputs.forEach(id => {
+  $(id).addEventListener('blur', function() { commaFmt(this); });
+});
 const fmtShort = (n) => {
   if (Math.abs(n) >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
   if (Math.abs(n) >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
@@ -774,12 +791,12 @@ function runProjection() {
     superAccessYr: +$('superAccessYear').value,
     growth:      +$('growthRate').value / 100,
     inflation:   +$('inflationRate').value / 100,
-    targetInc:   +$('targetIncome').value,
+    targetInc:   parseNum('targetIncome'),
     withdrawal:  +$('withdrawalRate').value,
-    initSuper:   +$('superBal').value,
-    initNonSuper:+$('nonSuperBal').value,
-    sContrib:    +$('superContrib').value,
-    nsContrib:   +$('nonSuperContrib').value,
+    initSuper:   parseNum('superBal'),
+    initNonSuper:parseNum('nonSuperBal'),
+    sContrib:    parseNum('superContrib'),
+    nsContrib:   parseNum('nonSuperContrib'),
     inflateS:    $('inflateSuper').checked,
     inflateNS:   $('inflateNonSuper').checked,
   };
@@ -948,6 +965,7 @@ function runProjection() {
 
 // Bind all inputs for live update
 document.querySelectorAll('input[type="number"]').forEach(el => el.addEventListener('input', runProjection));
+document.querySelectorAll('input[type="text"]').forEach(el => el.addEventListener('input', runProjection));
 $('inflateSuper').addEventListener('change', runProjection);
 $('inflateNonSuper').addEventListener('change', runProjection);
 
